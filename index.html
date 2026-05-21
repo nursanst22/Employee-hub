@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmployeeHub v2 — Integrated HR System</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F7F5F2; --bg2:#FFFFFF; --bg3:#EEF0ED;
+  --sidebar:#1C2B2B; --accent:#4A7C6F; --accent2:#3D6B5F;
+  --accent-soft:#EAF2EF; --text:#1A1F1E; --text2:#4B5563;
+  --muted:#9CA3AF; --border:#E5E7E4;
+  --danger:#E05252; --warn:#E08F3A; --success:#4A7C6F;
+  --radius:12px; --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 12px rgba(0,0,0,0.04);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;}
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:240px;background:var(--sidebar);display:flex;flex-direction:column;flex-shrink:0;}
+.sidebar-logo{padding:22px 20px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.logo-mark{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;color:#fff;}
+.logo-mark span{color:#7BBFB0;}
+.logo-ver{font-size:0.6rem;background:rgba(123,191,176,0.2);color:#7BBFB0;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle;}
+.logo-sub{font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:2px;}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto;}
+.nav-label{font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 8px;margin:14px 0 5px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.5);font-size:0.82rem;transition:all 0.2s;margin-bottom:2px;user-select:none;position:relative;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);}
+.nav-item.active{background:rgba(123,191,176,0.18);color:#7BBFB0;font-weight:500;}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;}
+.nav-badge{position:absolute;right:10px;background:var(--danger);color:#fff;font-size:0.6rem;font-weight:700;padding:1px 6px;border-radius:10px;}
+.sidebar-footer{padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06);}
+.user-card{display:flex;align-items:center;gap:10px;padding:8px;}
+.user-avatar{width:30px;height:30px;background:#7BBFB0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:var(--sidebar);flex-shrink:0;}
+.user-name{font-size:0.78rem;color:rgba(255,255,255,0.75);font-weight:500;}
+.user-role{font-size:0.65rem;color:rgba(255,255,255,0.3);}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 26px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;}
+.topbar-left h1{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:500;color:var(--text);}
+.topbar-left p{font-size:0.75rem;color:var(--muted);margin-top:1px;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.content{flex:1;overflow-y:auto;padding:22px 26px;}
+
+/* SYNC BANNER */
+.sync-banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#EAF2EF,#F0F7F5);border:1px solid rgba(74,124,111,0.2);border-radius:10px;padding:10px 16px;margin-bottom:18px;font-size:0.8rem;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.sync-text{color:var(--text2);flex:1;}
+.sync-time{font-size:0.72rem;color:var(--muted);}
+.time-saved{margin-left:auto;background:var(--accent);color:#fff;font-size:0.72rem;font-weight:600;padding:3px 10px;border-radius:20px;}
+
+/* ALERT STRIP */
+.alert-strip{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.alert-chip{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;font-size:0.78rem;cursor:pointer;transition:all 0.2s;}
+.alert-chip.danger{background:#FEF2F2;border:1px solid #FECACA;color:var(--danger);}
+.alert-chip.warn{background:#FFFBEB;border:1px solid #FDE68A;color:var(--warn);}
+.alert-chip.info{background:#EFF6FF;border:1px solid #BFDBFE;color:#1D4ED8;}
+.alert-chip:hover{transform:translateY(-1px);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:0.8rem;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(74,124,111,0.3);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--bg3);}
+.btn-danger{background:#FEF2F2;color:var(--danger);border:1px solid #FECACA;}
+.btn-warn{background:#FFFBEB;color:var(--warn);border:1px solid #FDE68A;}
+.btn-sm{padding:5px 10px;font-size:0.75rem;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);transition:transform 0.2s;position:relative;overflow:hidden;}
+.stat-card:hover{transform:translateY(-2px);}
+.stat-card::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 var(--radius) 0 60px;opacity:0.06;}
+.stat-card.c1::after{background:var(--accent);}
+.stat-card.c2::after{background:#22C55E;}
+.stat-card.c3::after{background:var(--warn);}
+.stat-card.c4::after{background:#3B82F6;}
+.stat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.stat-label{font-size:0.72rem;color:var(--muted);font-weight:500;letter-spacing:0.03em;}
+.stat-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;}
+.stat-num{font-family:'Fraunces',serif;font-size:1.9rem;font-weight:500;color:var(--text);line-height:1;margin-bottom:3px;}
+.stat-sub{font-size:0.7rem;color:var(--muted);}
+.stat-sub .up{color:var(--success);}
+.stat-sub .dn{color:var(--danger);}
+
+/* DECISION PANEL */
+.decision-panel{background:linear-gradient(135deg,#1C2B2B,#243535);border-radius:var(--radius);padding:20px;margin-bottom:18px;color:#fff;}
+.dp-header{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.dp-title{font-family:'Fraunces',serif;font-size:1rem;font-weight:500;}
+.dp-badge{font-size:0.65rem;background:rgba(123,191,176,0.25);color:#7BBFB0;padding:2px 8px;border-radius:10px;font-weight:600;}
+.dp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.dp-item{background:rgba(255,255,255,0.06);border-radius:8px;padding:12px;}
+.dp-item-icon{font-size:1.1rem;margin-bottom:6px;}
+.dp-item-title{font-size:0.78rem;font-weight:500;margin-bottom:3px;}
+.dp-item-text{font-size:0.72rem;color:rgba(255,255,255,0.5);line-height:1.5;}
+.dp-item.alert{border-left:2px solid var(--danger);}
+.dp-item.warn{border-left:2px solid var(--warn);}
+.dp-item.ok{border-left:2px solid #7BBFB0;}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+.card-title{font-family:'Fraunces',serif;font-size:0.9rem;font-weight:500;}
+.card-body{padding:18px;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap;}
+td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:0.82rem;color:var(--text);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#FAFAF9;}
+.avatar-sm{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:600;flex-shrink:0;}
+.flex-cell{display:flex;align-items:center;gap:8px;}
+.cell-name{font-weight:500;font-size:0.82rem;}
+.cell-sub{font-size:0.7rem;color:var(--muted);}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:0.68rem;font-weight:500;white-space:nowrap;}
+.badge-green{background:#ECFDF5;color:#065F46;}
+.badge-red{background:#FEF2F2;color:#991B1B;}
+.badge-yellow{background:#FFFBEB;color:#92400E;}
+.badge-blue{background:#EFF6FF;color:#1E40AF;}
+.badge-gray{background:var(--bg3);color:var(--text2);}
+.badge-orange{background:#FFF7ED;color:#C2410C;}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:14px;}
+
+/* INTEGRATION FLOW */
+.int-flow{display:flex;align-items:center;gap:0;margin:14px 0;}
+.int-box{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center;position:relative;}
+.int-box-title{font-size:0.72rem;font-weight:600;color:var(--text);margin-bottom:2px;}
+.int-box-val{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--accent);}
+.int-box.active{background:var(--accent-soft);border-color:rgba(74,124,111,0.3);}
+.int-arrow{padding:0 8px;color:var(--accent);font-size:1rem;flex-shrink:0;}
+.int-label{font-size:0.62rem;color:var(--muted);margin-top:2px;}
+
+/* PROGRESS */
+.prog-item{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.prog-header{display:flex;justify-content:space-between;align-items:center;}
+.prog-name{font-size:0.8rem;font-weight:500;}
+.prog-val{font-size:0.72rem;color:var(--muted);}
+.prog-bar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:0.75rem;font-weight:500;color:var(--text2);}
+input,select,textarea{padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:0.82rem;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,124,111,0.1);background:#fff;}
+
+/* PAY */
+.pay-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:0.82rem;}
+.pay-row:last-child{border-bottom:none;}
+.pay-label{color:var(--text2);}
+.pay-val{font-weight:500;}
+.pay-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;font-size:1rem;border-top:1px solid var(--border);margin-top:4px;}
+
+/* ATTENDANCE CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:6px;}
+.cal-day{text-align:center;font-size:0.62rem;color:var(--muted);font-weight:600;padding:4px 0;}
+.cal-cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.62rem;cursor:pointer;transition:all 0.15s;font-weight:500;}
+.cal-cell.present{background:var(--accent-soft);color:var(--accent);}
+.cal-cell.absent{background:#FEF2F2;color:var(--danger);}
+.cal-cell.leave{background:#FFFBEB;color:var(--warn);}
+.cal-cell.empty{pointer-events:none;}
+.cal-cell:not(.empty):hover{transform:scale(1.15);z-index:1;}
+
+/* BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px;padding-top:8px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;}
+.bar{width:100%;border-radius:4px 4px 0 0;transition:height 1s ease;cursor:pointer;}
+.bar:hover{opacity:0.8;}
+.bar-lbl{font-size:0.62rem;color:var(--muted);}
+.bar-v{font-size:0.62rem;color:var(--text2);font-weight:500;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border-radius:16px;padding:26px;width:480px;max-width:90vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.15);animation:su 0.25s ease;}
+@keyframes su{from{transform:translateY(16px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:500;}
+.modal-close{background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--muted);}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+
+/* SEARCH */
+.search-box{display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid var(--border);border-radius:8px;background:var(--bg);}
+.search-box input{border:none;background:none;outline:none;font-size:0.82rem;width:180px;font-family:'DM Sans',sans-serif;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:10px;font-size:0.82rem;z-index:999;display:none;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,0.15);animation:tl 0.3s ease;}
+.toast.show{display:flex;}
+.toast.success{background:var(--sidebar);color:#fff;}
+.toast.error{background:var(--danger);color:#fff;}
+.toast.info{background:#1D4ED8;color:#fff;}
+@keyframes tl{from{transform:translateX(16px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* PAGE */
+.page{display:none;}
+.page.active{display:block;animation:fi 0.3s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* EFFICIENCY TAG */
+.eff-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(74,124,111,0.1);color:var(--accent);font-size:0.68rem;font-weight:600;padding:2px 8px;border-radius:10px;}
+
+@media(max-width:768px){
+  .sidebar{width:56px;}
+  .logo-mark,.logo-sub,.nav-label,.nav-item span,.nav-badge,.user-name,.user-role{display:none;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .grid2,.grid3{grid-template-columns:1fr;}
+  .dp-grid{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .topbar{padding:12px 16px;}
+  .content{padding:14px 16px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Employee<span>Hub</span> <span class="logo-ver">v2</span></div>
+    <div class="logo-sub">Integrated HR System</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <div class="nav-item active" onclick="goPage('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span>Dashboard</span>
+    </div>
+    <div class="nav-item" onclick="goPage('employees',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>Employees</span>
+    </div>
+    <div class="nav-item" onclick="goPage('attendance',this)" id="nav-att">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+      <span>Attendance</span>
+      <span class="nav-badge" id="attBadge">!</span>
+    </div>
+    <div class="nav-item" onclick="goPage('payroll',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Payroll</span>
+    </div>
+    <div class="nav-item" onclick="goPage('integration',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+      <span>Integration</span>
+    </div>
+    <div class="nav-item" onclick="goPage('reports',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Reports</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">NS</div>
+      <div><div class="user-name">Nur Sa'diah</div><div class="user-role">HR Manager</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="pageTitle">Dashboard</h1>
+      <p id="pageDesc">Real-time integrated HR overview</p>
+    </div>
+    <div class="topbar-right">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Search employee..." oninput="searchHandler(this.value)">
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="bulkAttendance()">✅ Bulk Check-in</button>
+      <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Add Employee</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- SYNC BANNER -->
+    <div class="sync-banner">
+      <div class="sync-dot"></div>
+      <div class="sync-text">All modules synced — Attendance → Payroll → Reports updated automatically</div>
+      <div class="sync-time" id="syncTime">Last sync: just now</div>
+      <div class="time-saved" id="timeSavedBanner">⏱ 47 min saved today</div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="alert-strip" id="alertStrip"></div>
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-row">
+        <div class="stat-card c1">
+          <div class="stat-header"><span class="stat-label">Total Employees</span><div class="stat-icon" style="background:#EAF2EF;">👥</div></div>
+          <div class="stat-num" id="s-total">12</div>
+          <div class="stat-sub"><span class="up">↑ 2</span> this month</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-header"><span class="stat-label">Present Today</span><div class="stat-icon" style="background:#ECFDF5;">✅</div></div>
+          <div class="stat-num" id="s-present">0</div>
+          <div class="stat-sub"><span class="up" id="s-rate">0%</span> attendance rate</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-header"><span class="stat-label">Flagged Employees</span><div class="stat-icon" style="background:#FFFBEB;">⚠️</div></div>
+          <div class="stat-num" id="s-flagged">0</div>
+          <div class="stat-sub"><span class="dn" id="s-flag-txt">need attention</span></div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-header"><span class="stat-label">Monthly Payroll</span><div class="stat-icon" style="background:#EFF6FF;">💰</div></div>
+          <div class="stat-num" id="s-payroll">Rp 0</div>
+          <div class="stat-sub">auto-calculated from attendance</div>
+        </div>
+      </div>
+
+      <!-- DECISION SUPPORT PANEL -->
+      <div class="decision-panel" id="decisionPanel">
+        <div class="dp-header">
+          <span style="font-size:1rem;">🧠</span>
+          <span class="dp-title">Decision Support — AI Insights</span>
+          <span class="dp-badge">AUTO-GENERATED</span>
+        </div>
+        <div class="dp-grid" id="decisionGrid"></div>
+      </div>
+
+      <div class="grid3" style="margin-bottom:14px;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Attendance This Week</span>
+            <span class="eff-tag">↓ 43 min vs manual</span>
+          </div>
+          <div class="card-body">
+            <div class="bar-chart" id="weekChart"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Status Breakdown</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+            <div class="prog-item">
+              <div class="prog-header"><span class="prog-name">Present</span><span class="prog-val" id="pct-present">0%</span></div>
+              <div class="prog-bar"><div class="prog-fill" id="bar-present" style="width:0%;background:var(--accent);"></div></div>
+            </div>
+            <div class="prog-item">
+              <div class="prog-header"><span class="prog-name">Absent</span><span class="prog-val" id="pct-absent">0%</span></div>
+              <div class="prog-bar"><div class="prog-fill" id="bar-absent" style="width:0%;background:var(--danger);"></div></div>
+            </div>
+            <div class="prog-item">
+              <div class="prog-header"><span class="prog-name">On Leave</span><span class="prog-val" id="pct-leave">0%</span></div>
+              <div class="prog-bar"><div class="prog-fill" id="bar-leave" style="width:0%;background:var(--warn);"></div></div>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;">
+              <div style="font-size:0.72rem;color:var(--muted);margin-bottom:4px;">Time saved vs manual recap</div>
+              <div style="font-family:'Fraunces',serif;font-size:1.5rem;color:var(--accent);" id="timeSaved">0 min</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Flagged Employees</span><span class="badge badge-red" id="flag-count">0 alerts</span></div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Employee</th><th>Issue</th><th>Impact on Pay</th><th>Action</th></tr></thead>
+            <tbody id="flagTable"></tbody></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Auto-Sync Log</span></div>
+          <div class="card-body" id="syncLog" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPLOYEES -->
+    <div class="page" id="page-employees">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">All Employees</span>
+          <select class="btn btn-ghost btn-sm" onchange="filterDept(this.value)">
+            <option value="">All Departments</option>
+            <option>Engineering</option><option>Marketing</option>
+            <option>Finance</option><option>HR & Admin</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Employee</th><th>Dept</th><th>Position</th><th>Salary</th><th>Att. Rate</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="empTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div class="page" id="page-attendance">
+      <div class="sync-banner" style="margin-bottom:14px;">
+        <div class="sync-dot"></div>
+        <span class="sync-text">Changes here auto-update Payroll & Reports</span>
+        <button class="btn btn-primary btn-sm" onclick="bulkAttendance()">✅ Mark All Present</button>
+      </div>
+      <div class="grid2" style="margin-bottom:14px;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Today's Attendance</span>
+            <span class="badge badge-blue" id="todayDate2"></span>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Employee</th><th>Dept</th><th>Time In</th><th>Status</th><th>Mark</th></tr></thead>
+            <tbody id="attTable"></tbody></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Monthly Calendar</span></div>
+          <div class="card-body">
+            <div class="cal-grid">
+              <div class="cal-day">Su</div><div class="cal-day">Mo</div><div class="cal-day">Tu</div>
+              <div class="cal-day">We</div><div class="cal-day">Th</div><div class="cal-day">Fr</div><div class="cal-day">Sa</div>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:4px;font-size:0.7rem;"><div style="width:9px;height:9px;border-radius:2px;background:var(--accent-soft);"></div>Present</div>
+              <div style="display:flex;align-items:center;gap:4px;font-size:0.7rem;"><div style="width:9px;height:9px;border-radius:2px;background:#FEF2F2;"></div>Absent</div>
+              <div style="display:flex;align-items:center;gap:4px;font-size:0.7rem;"><div style="width:9px;height:9px;border-radius:2px;background:#FFFBEB;"></div>Leave</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Monthly Summary — Auto Recap</span>
+          <span class="eff-tag">⏱ Saves ~47 min vs manual Excel recap</span>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Employee</th><th>Present</th><th>Absent</th><th>Leave</th><th>Rate</th><th>Pay Impact</th><th>Flag</th></tr></thead>
+          <tbody id="attSummary"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYROLL -->
+    <div class="page" id="page-payroll">
+      <div class="sync-banner" style="margin-bottom:14px;">
+        <div class="sync-dot"></div>
+        <span class="sync-text">Salary auto-calculated from attendance data. No manual entry needed.</span>
+      </div>
+      <div class="grid2" style="margin-bottom:14px;">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Payroll Calculator</span><span class="badge badge-blue">May 2026</span></div>
+          <div class="card-body">
+            <div class="form-group" style="margin-bottom:14px;">
+              <label>Select Employee</label>
+              <select id="payEmpSel" onchange="calcPayroll()">
+                <option value="">— Choose —</option>
+              </select>
+            </div>
+            <div id="payBreakdown" style="display:none;">
+              <div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:12px;">
+                <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">AUTO-SYNCED FROM ATTENDANCE</div>
+                <div style="display:flex;gap:16px;">
+                  <div><div style="font-size:0.72rem;color:var(--muted);">Working Days</div><div style="font-weight:600;" id="pd-days">—</div></div>
+                  <div><div style="font-size:0.72rem;color:var(--muted);">Absent Days</div><div style="font-weight:600;color:var(--danger);" id="pd-absent">—</div></div>
+                  <div><div style="font-size:0.72rem;color:var(--muted);">Leave Days</div><div style="font-weight:600;color:var(--warn);" id="pd-leave">—</div></div>
+                </div>
+              </div>
+              <div class="pay-row"><span class="pay-label">Base Salary</span><span class="pay-val" id="pd-base">—</span></div>
+              <div class="pay-row"><span class="pay-label">Attendance Bonus (≥20 days)</span><span class="pay-val" style="color:var(--success);" id="pd-bonus">—</span></div>
+              <div class="pay-row" style="color:var(--danger);"><span class="pay-label">Absent Deduction</span><span class="pay-val" id="pd-ded">—</span></div>
+              <div class="pay-total">
+                <span style="font-weight:600;">Net Salary</span>
+                <span style="color:var(--accent);font-family:'Fraunces',serif;font-size:1.15rem;" id="pd-net">—</span>
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px;" onclick="generateSlip()">📄 Generate Payslip</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">All Payroll — Auto Calculated</span></div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Employee</th><th>Base</th><th>Deduct</th><th>Net</th><th>Status</th></tr></thead>
+            <tbody id="payTable"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTEGRATION PAGE -->
+    <div class="page" id="page-integration">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-header">
+          <span class="card-title">Data Integration Flow</span>
+          <span class="eff-tag">Real-time sync</span>
+        </div>
+        <div class="card-body">
+          <p style="font-size:0.82rem;color:var(--text2);margin-bottom:14px;">
+            Every attendance change automatically propagates to Payroll and Reports — eliminating manual data transfer between modules.
+          </p>
+          <div class="int-flow">
+            <div class="int-box active">
+              <div class="int-box-title">👥 Employee Data</div>
+              <div class="int-box-val" id="if-emp">12</div>
+              <div class="int-label">employees registered</div>
+            </div>
+            <div class="int-arrow">→</div>
+            <div class="int-box active">
+              <div class="int-box-title">📅 Attendance</div>
+              <div class="int-box-val" id="if-att">0</div>
+              <div class="int-label">present today</div>
+            </div>
+            <div class="int-arrow">→</div>
+            <div class="int-box active">
+              <div class="int-box-title">💰 Payroll</div>
+              <div class="int-box-val" id="if-pay">Rp 0</div>
+              <div class="int-label">net this month</div>
+            </div>
+            <div class="int-arrow">→</div>
+            <div class="int-box active">
+              <div class="int-box-title">📊 Reports</div>
+              <div class="int-box-val">Auto</div>
+              <div class="int-label">always updated</div>
+            </div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:14px;margin-top:14px;">
+            <div style="font-size:0.72rem;font-weight:600;color:var(--text2);margin-bottom:8px;">INTEGRATION LOG</div>
+            <div id="intLog" style="display:flex;flex-direction:column;gap:6px;font-size:0.78rem;color:var(--text2);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Time Saved Analysis</span></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+              <div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center;">
+                <div style="font-size:0.7rem;color:var(--muted);">Manual Process</div>
+                <div style="font-family:'Fraunces',serif;font-size:1.6rem;color:var(--danger);" id="manual-time">0 min</div>
+                <div style="font-size:0.68rem;color:var(--muted);">estimated time</div>
+              </div>
+              <div style="background:var(--accent-soft);border-radius:8px;padding:12px;text-align:center;">
+                <div style="font-size:0.7rem;color:var(--accent);">With EmployeeHub</div>
+                <div style="font-family:'Fraunces',serif;font-size:1.6rem;color:var(--accent);" id="auto-time">3 min</div>
+                <div style="font-size:0.68rem;color:var(--muted);">actual time</div>
+              </div>
+            </div>
+            <div class="prog-item">
+              <div class="prog-header"><span class="prog-name">Attendance Recap</span><span class="prog-val">Manual: 15min → Auto: 0min</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--accent);"></div></div>
+            </div>
+            <div class="prog-item" style="margin-top:8px;">
+              <div class="prog-header"><span class="prog-name">Payroll Calculation</span><span class="prog-val">Manual: 25min → Auto: 0min</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--accent);"></div></div>
+            </div>
+            <div class="prog-item" style="margin-top:8px;">
+              <div class="prog-header"><span class="prog-name">Report Generation</span><span class="prog-val">Manual: 10min → Auto: 0min</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--accent);"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">How Integration Works</span></div>
+          <div class="card-body" style="font-size:0.82rem;color:var(--text2);line-height:1.7;">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;background:var(--accent-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--accent);font-weight:700;flex-shrink:0;">1</div><div>HR marks attendance (present/absent/leave) per employee</div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;background:var(--accent-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--accent);font-weight:700;flex-shrink:0;">2</div><div>System instantly calculates deductions & bonuses based on attendance data</div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;background:var(--accent-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--accent);font-weight:700;flex-shrink:0;">3</div><div>Payroll page reflects updated net salary automatically — no re-entry</div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;background:var(--accent-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--accent);font-weight:700;flex-shrink:0;">4</div><div>Flagged employees (high absence) surface in Dashboard alerts for manager action</div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;background:var(--accent-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--accent);font-weight:700;flex-shrink:0;">5</div><div>Reports auto-generated — department payroll, attendance rates, all up to date</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="grid2" style="margin-bottom:14px;">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Department Payroll Breakdown</span><span class="eff-tag">Auto-updated</span></div>
+          <div class="card-body" id="deptPayroll"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Attendance Rate by Department</span></div>
+          <div class="card-body" id="deptAtt"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Export Reports</span></div>
+        <div class="card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+          <div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);" onclick="showToast('Downloading Employee Report...','info')" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.4rem;margin-bottom:6px;">📋</div>
+            <div style="font-size:0.8rem;font-weight:500;margin-bottom:3px;">Employee Data</div>
+            <div style="font-size:0.7rem;color:var(--muted);">All records</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);" onclick="showToast('Downloading Attendance Report...','info')" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.4rem;margin-bottom:6px;">📅</div>
+            <div style="font-size:0.8rem;font-weight:500;margin-bottom:3px;">Attendance Log</div>
+            <div style="font-size:0.7rem;color:var(--muted);">Monthly recap</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);" onclick="showToast('Downloading Payroll Report...','info')" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.4rem;margin-bottom:6px;">💰</div>
+            <div style="font-size:0.8rem;font-weight:500;margin-bottom:3px;">Payroll Summary</div>
+            <div style="font-size:0.7rem;color:var(--muted);">Net salaries</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);" onclick="showToast('Downloading Performance Report...','info')" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.4rem;margin-bottom:6px;">📊</div>
+            <div style="font-size:0.8rem;font-weight:500;margin-bottom:3px;">Performance</div>
+            <div style="font-size:0.7rem;color:var(--muted);">By department</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add New Employee</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Full Name *</label><input id="i-name" placeholder="Budi Santoso"></div>
+      <div class="form-group"><label>Email *</label><input id="i-email" type="email" placeholder="budi@co.id"></div>
+      <div class="form-group"><label>Department *</label>
+        <select id="i-dept"><option>Engineering</option><option>Marketing</option><option>Finance</option><option>HR & Admin</option></select>
+      </div>
+      <div class="form-group"><label>Position *</label><input id="i-pos" placeholder="e.g. Developer"></div>
+      <div class="form-group"><label>Base Salary (Rp) *</label><input id="i-sal" type="number" placeholder="8000000"></div>
+      <div class="form-group"><label>Join Date</label><input id="i-join" type="date"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addEmployee()">Add & Sync</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYSLIP MODAL -->
+<div class="modal-overlay" id="slipModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Payslip — May 2026</span>
+      <button class="modal-close" onclick="document.getElementById('slipModal').classList.remove('open')">✕</button>
+    </div>
+    <div id="slipContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('slipModal').classList.remove('open')">Close</button>
+      <button class="btn btn-primary" onclick="showToast('Payslip saved!','success')">Save PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="toastMsg">Done</span></div>
+
+<script>
+// ── DATA ──
+let employees = [
+  {id:1,name:'Andi Pratama',email:'andi@co.id',dept:'Engineering',pos:'Lead Developer',salary:12000000,join:'2023-01-15',status:'Active',present:20,absent:1,leave:1},
+  {id:2,name:'Sari Dewi',email:'sari@co.id',dept:'Marketing',pos:'Marketing Manager',salary:10000000,join:'2022-06-01',status:'Leave',present:14,absent:2,leave:5},
+  {id:3,name:'Budi Santoso',email:'budi@co.id',dept:'Engineering',pos:'Backend Dev',salary:9000000,join:'2024-03-10',status:'Active',present:21,absent:0,leave:0},
+  {id:4,name:'Rini Cahaya',email:'rini@co.id',dept:'Finance',pos:'Accountant',salary:8500000,join:'2023-08-20',status:'Active',present:19,absent:2,leave:0},
+  {id:5,name:'Doni Hidayat',email:'doni@co.id',dept:'HR & Admin',pos:'HR Officer',salary:7500000,join:'2022-11-01',status:'Active',present:20,absent:1,leave:0},
+  {id:6,name:'Maya Sari',email:'maya@co.id',dept:'Marketing',pos:'Content Creator',salary:7000000,join:'2024-01-08',status:'Active',present:16,absent:5,leave:0},
+  {id:7,name:'Rizky Aditya',email:'rizky@co.id',dept:'Engineering',pos:'Mobile Dev',salary:11000000,join:'2023-05-12',status:'Active',present:21,absent:0,leave:0},
+  {id:8,name:'Lena Putri',email:'lena@co.id',dept:'Finance',pos:'Finance Analyst',salary:9500000,join:'2022-09-15',status:'Inactive',present:8,absent:13,leave:0},
+  {id:9,name:'Fazar Rahman',email:'fazar@co.id',dept:'Engineering',pos:'DevOps',salary:13000000,join:'2021-07-01',status:'Active',present:21,absent:0,leave:0},
+  {id:10,name:'Tika Amelia',email:'tika@co.id',dept:'Marketing',pos:'Brand Manager',salary:10500000,join:'2023-02-14',status:'Active',present:19,absent:1,leave:1},
+  {id:11,name:'Hendra Wijaya',email:'hendra@co.id',dept:'Finance',pos:'CFO',salary:20000000,join:'2020-01-01',status:'Active',present:20,absent:0,leave:1},
+  {id:12,name:'Nurul Hasanah',email:'nurul@co.id',dept:'HR & Admin',pos:'Admin Officer',salary:6500000,join:'2024-06-01',status:'Active',present:18,absent:2,leave:1},
+];
+
+// today's attendance state
+let todayAtt = {};
+employees.forEach(e => { todayAtt[e.id] = e.absent > 3 ? 'absent' : 'present'; });
+
+const AC = ['#4A7C6F','#7BBFB0','#E08F3A','#E05252','#6B8CAE','#9B7EBD'];
+const fmt = n => 'Rp '+Number(n).toLocaleString('id-ID');
+const ini = n => n.split(' ').slice(0,2).map(x=>x[0]).join('');
+const rate = e => Math.round(e.present/(e.present+e.absent+e.leave||1)*100);
+
+// ── COMPUTED ──
+function getPresent(){ return Object.values(todayAtt).filter(v=>v==='present').length; }
+function getFlagged(){ return employees.filter(e=>e.absent>=3).length; }
+function getTotalPayroll(){
+  return employees.reduce((s,e)=>{
+    const bonus = e.present>=20?500000:0;
+    const ded = e.absent*Math.round(e.salary/22);
+    return s+e.salary+bonus-ded;
+  },0);
+}
+function getTimeSaved(){ return Math.round(employees.length * 4); }
+
+// ── SYNC ENGINE ──
+let syncLog = [];
+function triggerSync(action){
+  const now = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  syncLog.unshift({time:now,action});
+  if(syncLog.length>6) syncLog.pop();
+  updateDashboard();
+  updateSyncLog();
+  updateIntegrationPage();
+  const ts = document.getElementById('syncTime');
+  if(ts) ts.textContent = 'Last sync: '+now;
+}
+
+function updateDashboard(){
+  const p = getPresent(), tot = employees.length;
+  const r = Math.round(p/tot*100);
+  const fl = getFlagged();
+  const tp = getTotalPayroll();
+  const ts = getTimeSaved();
+
+  document.getElementById('s-total').textContent = tot;
+  document.getElementById('s-present').textContent = p;
+  document.getElementById('s-rate').textContent = r+'%';
+  document.getElementById('s-flagged').textContent = fl;
+  document.getElementById('s-flag-txt').textContent = fl>0?'need HR attention':'all clear';
+  document.getElementById('s-payroll').textContent = 'Rp '+Math.round(tp/1e6)+'M';
+  document.getElementById('timeSavedBanner').textContent = '⏱ '+ts+' min saved today';
+
+  // progress bars
+  const a = employees.filter(e=>e.absent>0).length;
+  const l = employees.filter(e=>e.leave>0).length;
+  ['present','absent','leave'].forEach(k=>{
+    const v = k==='present'?r:k==='absent'?Math.round(a/tot*100):Math.round(l/tot*100);
+    document.getElementById('pct-'+k).textContent = v+'%';
+    document.getElementById('bar-'+k).style.width = v+'%';
+  });
+  document.getElementById('timeSaved').textContent = ts+' min';
+
+  // flag table
+  const flagged = employees.filter(e=>e.absent>=3);
+  document.getElementById('flag-count').textContent = flagged.length+' alerts';
+  document.getElementById('flagTable').innerHTML = flagged.map((e,i)=>{
+    const ded = e.absent*Math.round(e.salary/22);
+    return `<tr>
+      <td><div class="flex-cell"><div class="avatar-sm" style="background:${AC[i%6]};color:#fff;">${ini(e.name)}</div><span>${e.name}</span></div></td>
+      <td><span class="badge badge-red">⚠ ${e.absent} absent days</span></td>
+      <td style="color:var(--danger);">-${fmt(ded)}</td>
+      <td><button class="btn btn-warn btn-sm" onclick="showToast('Warning sent to ${e.name.split(' ')[0]}','success')">Send Warning</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">No flagged employees 🎉</td></tr>';
+
+  // decision panel
+  const insights = [];
+  if(r<75) insights.push({cls:'alert',icon:'🚨',title:'Low Attendance Rate',text:`Today's rate is ${r}% — below 75% threshold. Consider checking in with absent employees.`});
+  else insights.push({cls:'ok',icon:'✅',title:'Attendance On Track',text:`${r}% attendance rate today — above target. Team is performing well.`});
+  if(fl>0) insights.push({cls:'warn',icon:'⚠️',title:`${fl} Employee(s) Need Attention`,text:`${flagged.map(e=>e.name.split(' ')[0]).join(', ')} have high absence — risk of salary deduction.`});
+  else insights.push({cls:'ok',icon:'🌟',title:'No High-Risk Employees',text:'All employees within acceptable attendance range this month.'});
+  insights.push({cls:'ok',icon:'💰',title:'Payroll Auto-Calculated',text:`Total net payroll: ${fmt(tp)}. No manual calculation needed — synced from attendance.`});
+  document.getElementById('decisionGrid').innerHTML = insights.map(i=>`
+    <div class="dp-item ${i.cls}"><div class="dp-item-icon">${i.icon}</div><div class="dp-item-title">${i.title}</div><div class="dp-item-text">${i.text}</div></div>
+  `).join('');
+
+  // alerts
+  const alerts = [];
+  if(r<75) alerts.push({cls:'danger',icon:'🚨',msg:`Attendance rate ${r}% — below threshold`});
+  if(fl>0) alerts.push({cls:'warn',icon:'⚠️',msg:`${fl} employee(s) flagged for high absence`});
+  alerts.push({cls:'info',icon:'ℹ️',msg:`Payroll updated automatically — ${fmt(tp)} total`});
+  document.getElementById('alertStrip').innerHTML = alerts.map(a=>`
+    <div class="alert-chip ${a.cls}" onclick="showToast('${a.msg}','info')">${a.icon} ${a.msg}</div>
+  `).join('');
+}
+
+function updateSyncLog(){
+  document.getElementById('syncLog').innerHTML = syncLog.map(l=>`
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;"></div>
+      <span style="color:var(--muted);font-size:0.72rem;">${l.time}</span>
+      <span>${l.action}</span>
+    </div>
+  `).join('') || '<div style="color:var(--muted);font-size:0.82rem;">No recent sync activity</div>';
+}
+
+// ── NAVIGATION ──
+function goPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  const titles={dashboard:'Dashboard',employees:'Employees',attendance:'Attendance',payroll:'Payroll',integration:'Data Integration',reports:'Reports'};
+  const descs={dashboard:'Real-time integrated HR overview',employees:'Manage employee records',attendance:'Mark attendance — auto-syncs to payroll',payroll:'Salaries auto-calculated from attendance',integration:'How modules connect behind the scenes',reports:'Auto-generated from live data'};
+  document.getElementById('pageTitle').textContent=titles[id];
+  document.getElementById('pageDesc').textContent=descs[id];
+  if(id==='employees') renderEmployees(employees);
+  if(id==='attendance') renderAttendance();
+  if(id==='payroll') renderPayroll();
+  if(id==='reports') renderReports();
+  if(id==='integration') updateIntegrationPage();
+}
+
+// ── EMPLOYEES ──
+function renderEmployees(list){
+  document.getElementById('empTable').innerHTML = list.map((e,i)=>`
+    <tr>
+      <td><div class="flex-cell"><div class="avatar-sm" style="background:${AC[i%6]};color:#fff;">${ini(e.name)}</div>
+      <div><div class="cell-name">${e.name}</div><div class="cell-sub">${e.email}</div></div></div></td>
+      <td><span class="badge badge-gray">${e.dept}</span></td>
+      <td style="color:var(--text2);">${e.pos}</td>
+      <td>${fmt(e.salary)}</td>
+      <td><div style="display:flex;align-items:center;gap:6px;">
+        <div style="width:40px;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:${rate(e)}%;background:${rate(e)>=80?'var(--accent)':rate(e)>=60?'var(--warn)':'var(--danger)'};border-radius:2px;"></div>
+        </div>
+        <span style="font-size:0.72rem;">${rate(e)}%</span></div></td>
+      <td><span class="badge ${e.status==='Active'?'badge-green':e.status==='Leave'?'badge-yellow':'badge-red'}">${e.status}</span></td>
+      <td><div style="display:flex;gap:5px;">
+        <button class="btn btn-ghost btn-sm" onclick="editEmp(${e.id})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteEmp(${e.id})">Del</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function filterDept(d){ renderEmployees(d?employees.filter(e=>e.dept===d):employees); }
+function searchHandler(v){ const q=v.toLowerCase(); renderEmployees(employees.filter(e=>e.name.toLowerCase().includes(q)||e.dept.toLowerCase().includes(q)||e.pos.toLowerCase().includes(q))); }
+
+function deleteEmp(id){
+  if(!confirm('Delete employee?')) return;
+  employees=employees.filter(e=>e.id!==id);
+  delete todayAtt[id];
+  renderEmployees(employees);
+  triggerSync('Employee removed — payroll recalculated');
+  showToast('Employee deleted & payroll updated','success');
+}
+
+function editEmp(id){
+  const e=employees.find(x=>x.id===id);
+  document.getElementById('i-name').value=e.name;
+  document.getElementById('i-email').value=e.email;
+  document.getElementById('i-dept').value=e.dept;
+  document.getElementById('i-pos').value=e.pos;
+  document.getElementById('i-sal').value=e.salary;
+  document.getElementById('i-join').value=e.join;
+  openAddModal();
+}
+
+// ── ADD ──
+function openAddModal(){ document.getElementById('addModal').classList.add('open'); }
+function closeModal(){ document.getElementById('addModal').classList.remove('open'); }
+
+function addEmployee(){
+  const name=document.getElementById('i-name').value.trim();
+  const email=document.getElementById('i-email').value.trim();
+  const dept=document.getElementById('i-dept').value;
+  const pos=document.getElementById('i-pos').value.trim();
+  const sal=parseInt(document.getElementById('i-sal').value);
+  const join=document.getElementById('i-join').value||new Date().toISOString().split('T')[0];
+  if(!name||!email||!pos||!sal){ showToast('Fill required fields','error'); return; }
+  const ne={id:Date.now(),name,email,dept,pos,salary:sal,join,status:'Active',present:0,absent:0,leave:0};
+  employees.push(ne);
+  todayAtt[ne.id]='present';
+  closeModal();
+  renderEmployees(employees);
+  triggerSync(`${name} added → attendance & payroll updated`);
+  showToast(name+' added — all modules synced!','success');
+  ['i-name','i-email','i-pos','i-sal','i-join'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ── ATTENDANCE ──
+function renderAttendance(){
+  document.getElementById('todayDate2').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('attTable').innerHTML = employees.map((e,i)=>{
+    const st = todayAtt[e.id]||'present';
+    const time = st==='present'?`0${7+Math.floor(i/3)}:${['05','22','41'][i%3]} AM`:'-';
+    return `<tr>
+      <td><div class="flex-cell"><div class="avatar-sm" style="background:${AC[i%6]};color:#fff;font-size:0.65rem;">${ini(e.name)}</div><span style="font-weight:500;">${e.name.split(' ')[0]}</span></div></td>
+      <td><span class="badge badge-gray" style="font-size:0.65rem;">${e.dept}</span></td>
+      <td style="color:var(--text2);">${time}</td>
+      <td><span class="badge ${st==='present'?'badge-green':st==='absent'?'badge-red':'badge-yellow'}">${st}</span></td>
+      <td><select class="btn btn-ghost btn-sm" onchange="changeAtt(${e.id},this.value)">
+        <option value="present" ${st==='present'?'selected':''}>Present</option>
+        <option value="absent" ${st==='absent'?'selected':''}>Absent</option>
+        <option value="leave" ${st==='leave'?'selected':''}>Leave</option>
+      </select></td>
+    </tr>`;
+  }).join('');
+
+  // calendar
+  const types=['empty','empty','empty','empty','present','present','empty','present','present','present','present','present','empty','empty','present','present','present','absent','present','empty','empty','present','present','leave','present','present','empty','empty','present','present','present'];
+  document.getElementById('calGrid').innerHTML = types.map((t,i)=>`<div class="cal-cell ${t}">${t!=='empty'&&i>3?i-3:''}</div>`).join('');
+
+  // summary
+  document.getElementById('attSummary').innerHTML = employees.map(e=>{
+    const r=rate(e);
+    const ded=e.absent*Math.round(e.salary/22);
+    const flag=e.absent>=3;
+    return `<tr>
+      <td><span style="font-weight:500;">${e.name}</span></td>
+      <td><span class="badge badge-green">${e.present}</span></td>
+      <td><span class="badge badge-red">${e.absent}</span></td>
+      <td><span class="badge badge-yellow">${e.leave}</span></td>
+      <td><div style="display:flex;align-items:center;gap:6px;">
+        <div style="width:50px;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:${r}%;background:${r>=80?'var(--accent)':r>=60?'var(--warn)':'var(--danger)'};border-radius:2px;"></div>
+        </div><span style="font-size:0.75rem;">${r}%</span></div></td>
+      <td style="color:${ded>0?'var(--danger)':'var(--success)'};">${ded>0?'-'+fmt(ded):'Rp 0'}</td>
+      <td>${flag?'<span class="badge badge-red">⚠ Flagged</span>':'<span class="badge badge-green">OK</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function changeAtt(id, val){
+  todayAtt[id]=val;
+  const e=employees.find(x=>x.id===id);
+  triggerSync(`${e.name.split(' ')[0]}: marked ${val} → payroll auto-updated`);
+  showToast(`${e.name.split(' ')[0]} marked as ${val}. Payroll synced.`,'success');
+  document.getElementById('attBadge').style.display='none';
+  renderAttendance();
+}
+
+function bulkAttendance(){
+  employees.forEach(e=>todayAtt[e.id]='present');
+  triggerSync('Bulk check-in: all employees marked present → payroll updated');
+  showToast('All employees marked present — payroll synced!','success');
+  document.getElementById('attBadge').style.display='none';
+  renderAttendance();
+}
+
+// ── PAYROLL ──
+function renderPayroll(){
+  const sel=document.getElementById('payEmpSel');
+  sel.innerHTML='<option value="">— Choose —</option>'+employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  document.getElementById('payTable').innerHTML=employees.map(e=>{
+    const bonus=e.present>=20?500000:0;
+    const ded=e.absent*Math.round(e.salary/22);
+    const net=e.salary+bonus-ded;
+    return `<tr>
+      <td style="font-weight:500;">${e.name.split(' ')[0]}</td>
+      <td>${fmt(e.salary)}</td>
+      <td style="color:var(--danger);">${ded>0?'-'+fmt(ded):'Rp 0'}</td>
+      <td style="color:var(--accent);font-weight:600;">${fmt(net)}</td>
+      <td><span class="badge badge-green">Paid</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function calcPayroll(){
+  const id=parseInt(document.getElementById('payEmpSel').value);
+  const e=employees.find(x=>x.id===id);
+  if(!e){document.getElementById('payBreakdown').style.display='none';return;}
+  const bonus=e.present>=20?500000:0;
+  const ded=e.absent*Math.round(e.salary/22);
+  const net=e.salary+bonus-ded;
+  document.getElementById('pd-days').textContent=e.present;
+  document.getElementById('pd-absent').textContent=e.absent;
+  document.getElementById('pd-leave').textContent=e.leave;
+  document.getElementById('pd-base').textContent=fmt(e.salary);
+  document.getElementById('pd-bonus').textContent='+'+fmt(bonus);
+  document.getElementById('pd-ded').textContent='-'+fmt(ded);
+  document.getElementById('pd-net').textContent=fmt(net);
+  document.getElementById('payBreakdown').style.display='block';
+}
+
+function generateSlip(){
+  const id=parseInt(document.getElementById('payEmpSel').value);
+  const e=employees.find(x=>x.id===id);
+  if(!e)return;
+  const bonus=e.present>=20?500000:0;
+  const ded=e.absent*Math.round(e.salary/22);
+  const net=e.salary+bonus-ded;
+  document.getElementById('slipContent').innerHTML=`
+    <div style="background:var(--bg);border-radius:10px;padding:18px;font-size:0.82rem;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+        <div><strong style="font-family:Fraunces,serif;">EmployeeHub</strong><br><span style="font-size:0.7rem;color:var(--muted);">Integrated HR System</span></div>
+        <div style="text-align:right;font-size:0.7rem;color:var(--muted);">Pay Period: May 2026<br>${new Date().toLocaleDateString()}</div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding:10px 0;margin-bottom:10px;">
+        <strong>${e.name}</strong><br>
+        <span style="color:var(--muted);font-size:0.72rem;">${e.pos} · ${e.dept}</span>
+      </div>
+      <div style="font-size:0.68rem;color:var(--accent);margin-bottom:8px;font-weight:600;">✓ AUTO-CALCULATED FROM ATTENDANCE DATA</div>
+      <div class="pay-row"><span class="pay-label">Base Salary</span><span class="pay-val">${fmt(e.salary)}</span></div>
+      <div class="pay-row"><span class="pay-label">Present Days</span><span class="pay-val">${e.present} days</span></div>
+      <div class="pay-row"><span class="pay-label">Attendance Bonus</span><span class="pay-val" style="color:var(--success);">+${fmt(bonus)}</span></div>
+      <div class="pay-row"><span class="pay-label">Absent Deduction (${e.absent} days)</span><span class="pay-val" style="color:var(--danger);">-${fmt(ded)}</span></div>
+      <div class="pay-total"><span style="font-weight:700;">NET SALARY</span><span style="color:var(--accent);font-family:Fraunces,serif;font-size:1.15rem;">${fmt(net)}</span></div>
+    </div>`;
+  document.getElementById('slipModal').classList.add('open');
+}
+
+// ── INTEGRATION PAGE ──
+function updateIntegrationPage(){
+  const p=getPresent(), tp=getTotalPayroll();
+  const ie=document.getElementById('if-emp');
+  const ia=document.getElementById('if-att');
+  const ip=document.getElementById('if-pay');
+  if(ie) ie.textContent=employees.length;
+  if(ia) ia.textContent=p;
+  if(ip) ip.textContent='Rp '+Math.round(tp/1e6)+'M';
+  const il=document.getElementById('intLog');
+  if(il) il.innerHTML=syncLog.slice(0,5).map(l=>`
+    <div style="display:flex;gap:8px;font-size:0.78px;">
+      <span style="color:var(--muted);">${l.time}</span>
+      <span style="color:var(--text2);">${l.action}</span>
+    </div>`).join('') || '<span style="color:var(--muted);">No activity yet</span>';
+  const mt=document.getElementById('manual-time');
+  if(mt) mt.textContent=Math.round(employees.length*4+15)+' min';
+}
+
+// ── REPORTS ──
+function renderReports(){
+  const depts=['Engineering','Marketing','Finance','HR & Admin'];
+  const colors=['#4A7C6F','#7BBFB0','#E08F3A','#E05252'];
+  const totPay=depts.map(d=>employees.filter(e=>e.dept===d).reduce((s,e)=>{
+    const bonus=e.present>=20?500000:0,ded=e.absent*Math.round(e.salary/22);
+    return s+e.salary+bonus-ded;
+  },0));
+  const totAtt=depts.map(d=>{
+    const emps=employees.filter(e=>e.dept===d);
+    return emps.length?Math.round(emps.reduce((s,e)=>s+rate(e),0)/emps.length):0;
+  });
+  const maxP=Math.max(...totPay);
+  document.getElementById('deptPayroll').innerHTML=depts.map((d,i)=>`
+    <div class="prog-item">
+      <div class="prog-header"><span class="prog-name">${d}</span><span class="prog-val">${fmt(totPay[i])}</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${Math.round(totPay[i]/maxP*100)}%;background:${colors[i]};"></div></div>
+    </div>`).join('');
+  document.getElementById('deptAtt').innerHTML=depts.map((d,i)=>`
+    <div class="prog-item">
+      <div class="prog-header"><span class="prog-name">${d}</span><span class="prog-val">${totAtt[i]}%</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${totAtt[i]}%;background:${totAtt[i]>=80?colors[0]:totAtt[i]>=60?'var(--warn)':'var(--danger)'};"></div></div>
+    </div>`).join('');
+}
+
+// ── WEEK CHART ──
+function buildChart(){
+  const days=['Mon','Tue','Wed','Thu','Fri'];
+  const vals=[9,11,10,12,getPresent()];
+  const max=12;
+  document.getElementById('weekChart').innerHTML=days.map((d,i)=>`
+    <div class="bar-wrap">
+      <div class="bar-v">${vals[i]}</div>
+      <div class="bar ${i===4?'highlight':''}" style="height:${Math.round(vals[i]/max*100)}%;background:${i===4?'var(--accent)':'var(--accent-soft)'};"></div>
+      <div class="bar-lbl">${d}</div>
+    </div>`).join('');
+}
+
+// ── TOAST ──
+function showToast(msg, type='success'){
+  const t=document.getElementById('toast');
+  t.className='toast show '+type;
+  document.getElementById('toastMsg').textContent=msg;
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── INIT ──
+document.getElementById('i-join').valueAsDate=new Date();
+triggerSync('System initialized — all modules connected');
+triggerSync('Employee database loaded ('+employees.length+' records)');
+buildChart();
+updateDashboard();
+</script>
+</body>
+</html>
