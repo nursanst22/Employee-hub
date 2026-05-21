@@ -1,9 +1,7 @@
 **EmployeeHub v2**
-
 Integrated Human Resource Information System (HRIS) Dashboard. This integrated Human Resource Information System (HRIS) dashboard is designed to transform manual HR administrative workflows into a centralized and efficient digital operational system.
 
 **What the Project Does**
-
 This project digitalizes core HR operational activities, including employee data management, attendance tracking, payroll calculation, and operational analytics reporting. The system replaces manual spreadsheet-based administration with an automated real-time dashboard workflow to improve operational accuracy and efficiency. EmployeeHub v2 integrates attendance synchronization, payroll automation, and HR analytics into one connected frontend system using Vanilla JavaScript architecture.
 
 **Why the Project is Useful**
